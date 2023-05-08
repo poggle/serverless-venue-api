@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import createEvent from '@functions/events/createEvent';
+import getEvents from '@functions/events/getEvents';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-venue-api',
@@ -22,7 +23,7 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       {
         Effect: 'Allow',
-        Action: ['dynamodb:PutItem', 'dynamodb:GetItem'],
+        Action: ['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:Query'],
         Resource: {
           'Fn::GetAtt': ['VenueTable', 'Arn'],
         },
@@ -30,7 +31,7 @@ const serverlessConfiguration: AWS = {
     ],
   },
   // import the function via paths
-  functions: { createEvent },
+  functions: { createEvent, getEvents },
   package: { individually: true },
   resources: {
     Resources: {

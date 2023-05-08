@@ -21,12 +21,17 @@ export default {
         },
         category: {
             type: "string",
+            enum: ['conference', 'meetup', 'concert'],
             description: "The event's category (e.g., conference, meetup, concert)."
         },
-        status: {
-            type: "string",
-            description: "The event's status (e.g., upcoming, ongoing, completed, canceled)."
+        isDraft: {
+            type: "boolean",
+            description: "Is the event visible for attendees to book?"
         },
+        isCancelled: {
+            type: "boolean",
+            description: "Is the event cancelled?"
+        }
     },
-    required: ['name', 'description', 'startTime', 'endTime', 'category', 'status']
+    required: ['name', 'description', 'startTime', 'endTime', 'category', 'isDraft', 'isCancelled']
 } as const;
