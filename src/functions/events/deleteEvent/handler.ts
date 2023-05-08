@@ -1,5 +1,5 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-import { formatJSONResponse } from '@libs/api-gateway';
+import {formatJSONErrorResponse} from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import {deleteEvent, getEventById} from "../../../repositories/event-respository";
 import NotFoundError from "../../../errors/not-found-error";
@@ -11,7 +11,7 @@ const handler: ValidatedEventAPIGatewayProxyEvent<{}, {eventId: string}> = async
     return {body: '', statusCode: 204};
   } catch (e: unknown) {
     if (e instanceof NotFoundError) {
-      return formatJSONResponse({error: `Event not found`}, 404);
+      return formatJSONErrorResponse(`Event not found`, 404);
     }
     throw e;
   }
