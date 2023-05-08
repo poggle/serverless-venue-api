@@ -17,13 +17,44 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
+      TABLE_NAME: '${self:resources.Resources.VenueTable.Properties.TableName}'
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: ['dynamodb:PutItem', 'dynamodb:GetItem'],
+        Resource: {
+          'Fn::GetAtt': ['VenueTable', 'Arn'],
+        },
+      },
+    ],
   },
   // import the function via paths
   functions: { createEvent },
   package: { individually: true },
   resources: {
     Resources: {
+      VenueTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: '${self:service}-${sls:stage}-venue-table',
+          AttributeDefinitions: [
+            { AttributeName: 'PK', AttributeType: 'S' },
+            { AttributeName: 'SK', AttributeType: 'S' },
+          ],
+          KeySchema: [
+            { AttributeName: 'PK', KeyType: 'HASH' },
+            { AttributeName: 'SK', KeyType: 'RANGE' },
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 5,
+            WriteCapacityUnits: 5,
+          },
+          StreamSpecification: {
+            StreamViewType: 'NEW_AND_OLD_IMAGES',
+          },
+        },
+      },
       GatewayResponseValidationError: {
         Type: 'AWS::ApiGateway::GatewayResponse',
         Properties: {
