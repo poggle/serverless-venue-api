@@ -5,10 +5,10 @@ import schema from './schema';
 import { saveEvent } from "../../../repositories/event-respository";
 import deserialiser from "@functions/events/createEvent/deserialiser";
 
-const createEvent: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (requestEvent) => {
+const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, {}> = async (requestEvent) => {
   const newEvent = deserialiser(requestEvent.body);
   const event = await saveEvent(newEvent);
   return formatJSONResponse(event, 201);
 };
 
-export const main = middyfy(createEvent);
+export const main = middyfy(handler);

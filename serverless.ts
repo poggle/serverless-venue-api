@@ -2,6 +2,7 @@ import type { AWS } from '@serverless/typescript';
 
 import createEvent from '@functions/events/createEvent';
 import getEvents from '@functions/events/getEvents';
+import deleteEvent from '@functions/events/deleteEvent';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-venue-api',
@@ -23,29 +24,47 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       {
         Effect: 'Allow',
-        Action: ['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:Query'],
-        Resource: {
-          'Fn::GetAtt': ['VenueTable', 'Arn'],
-        },
+        Action: ['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:DeleteItem'],
+        Resource: [
+          {
+            'Fn::GetAtt': ['VenueTable', 'Arn'],
+          },
+          {
+            'Fn::Sub': '${VenueTable.Arn}/index/*',
+          },
+        ],
       },
     ],
   },
   // import the function via paths
-  functions: { createEvent, getEvents },
+  functions: { createEvent, getEvents, deleteEvent },
   package: { individually: true },
   resources: {
     Resources: {
       VenueTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: '${self:service}-${sls:stage}-venue-table',
+          TableName: '${self:service}-${sls:stage}-venue-table2',
           AttributeDefinitions: [
             { AttributeName: 'PK', AttributeType: 'S' },
             { AttributeName: 'SK', AttributeType: 'S' },
+            { AttributeName: 'id', AttributeType: 'S' },
           ],
           KeySchema: [
             { AttributeName: 'PK', KeyType: 'HASH' },
             { AttributeName: 'SK', KeyType: 'RANGE' },
+          ],
+          LocalSecondaryIndexes: [
+            {
+              IndexName: 'IdIndex',
+              KeySchema: [
+                { AttributeName: 'PK', KeyType: 'HASH' },
+                { AttributeName: 'id', KeyType: 'RANGE' },
+              ],
+              Projection: {
+                ProjectionType: 'ALL',
+              },
+            },
           ],
           ProvisionedThroughput: {
             ReadCapacityUnits: 5,

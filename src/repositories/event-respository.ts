@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import {DynamoDBClient, QueryOutput} from '@aws-sdk/client-dynamodb';
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, QueryCommand, DeleteCommand} from '@aws-sdk/lib-dynamodb';
 
 import {DynamoDbSerialisedEvent, Event, NewEvent} from "../types/event";
 import requiredEnvVar from "../libs/required-env-var";
+import NotFoundError from "../errors/not-found-error";
 
 const dynamoDBClient = new DynamoDBClient({});
 
@@ -58,4 +59,32 @@ export const getNonDraftEvents = async (): Promise<Event[]> => {
     return result.Items.map((item) => {
         return deserialise(item as unknown as DynamoDbSerialisedEvent)
     });
+}
+
+export const getEventById = async (eventId: string) => {
+    const result = await dynamoDBClient.send(new QueryCommand( {
+        TableName: requiredEnvVar('TABLE_NAME'),
+        IndexName: 'IdIndex',
+        KeyConditionExpression: 'PK = :PK and id = :id',
+        ExpressionAttributeValues: {
+            ':PK': 'EVENT',
+            ':id': eventId,
+        },
+    })) as QueryOutput;
+
+    if (result.Items.length !== 1) {
+        throw new NotFoundError();
+    }
+
+    return  deserialise(result.Items[0] as unknown as DynamoDbSerialisedEvent);
+}
+
+export const deleteEvent = async (event: Event) => {
+    await dynamoDBClient.send(new DeleteCommand({
+        TableName: requiredEnvVar('TABLE_NAME'),
+        Key: {
+            'PK': buildPartitionKey(event),
+            'SK': buildSortKey(event),
+        },
+    }));
 }
