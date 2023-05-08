@@ -22,6 +22,26 @@ const serverlessConfiguration: AWS = {
   // import the function via paths
   functions: { createEvent },
   package: { individually: true },
+  resources: {
+    Resources: {
+      GatewayResponseValidationError: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+          ResponseType: 'BAD_REQUEST_BODY',
+          ResponseParameters: {
+            'gatewayresponse.header.Content-Type': "'application/json'",
+          },
+          ResponseTemplates: {
+            'application/json': '{"message": "Invalid request body", "errors": $context.error.validationErrorString}',
+          },
+          StatusCode: 400,
+        },
+      },
+    },
+  },
   custom: {
     esbuild: {
       bundle: true,
