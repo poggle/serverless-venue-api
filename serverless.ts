@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/hello';
+import createEvent from '@functions/events/createEvent';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-venue-api',
@@ -8,6 +8,7 @@ const serverlessConfiguration: AWS = {
   plugins: ['serverless-esbuild'],
   provider: {
     name: 'aws',
+    region: 'eu-west-2',
     runtime: 'nodejs18.x',
     apiGateway: {
       minimumCompressionSize: 1024,
@@ -19,7 +20,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { hello },
+  functions: { createEvent },
   package: { individually: true },
   custom: {
     esbuild: {
