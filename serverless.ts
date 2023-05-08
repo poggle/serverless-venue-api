@@ -1,8 +1,10 @@
 import type { AWS } from '@serverless/typescript';
 
 import createEvent from '@functions/events/createEvent';
+import getEvent from '@functions/events/getEvent';
 import getEvents from '@functions/events/getEvents';
 import deleteEvent from '@functions/events/deleteEvent';
+import updateEvent from '@functions/events/updateEvent';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-venue-api',
@@ -37,14 +39,14 @@ const serverlessConfiguration: AWS = {
     ],
   },
   // import the function via paths
-  functions: { createEvent, getEvents, deleteEvent },
+  functions: { createEvent, getEvent, getEvents, deleteEvent, updateEvent },
   package: { individually: true },
   resources: {
     Resources: {
       VenueTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: '${self:service}-${sls:stage}-venue-table2',
+          TableName: '${self:service}-${sls:stage}-venue-table',
           AttributeDefinitions: [
             { AttributeName: 'PK', AttributeType: 'S' },
             { AttributeName: 'SK', AttributeType: 'S' },
