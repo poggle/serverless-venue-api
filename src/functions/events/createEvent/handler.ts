@@ -9,7 +9,7 @@ import ValidationError from "../../../errors/validation-error";
 const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, object> = async (requestEvent) => {
   try {
     const newEvent = deserialiser(requestEvent.body);
-    const event = createEvent(newEvent);
+    const event = await createEvent(newEvent);
     return formatJSONResponse(event, 201);
   } catch (e: unknown) {
     if (e instanceof ValidationError) {
