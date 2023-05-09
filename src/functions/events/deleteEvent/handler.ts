@@ -3,7 +3,7 @@ import { middyfy } from '@libs/lambda';
 import {deleteEvent, getEventById} from "../../../repositories/event-repository";
 import NotFoundError from "../../../errors/not-found-error";
 
-const handler: ValidatedEventAPIGatewayProxyEvent<{}, {eventId: string}> = async (requestEvent) => {
+const handler: ValidatedEventAPIGatewayProxyEvent<object, {eventId: string}> = async (requestEvent) => {
   try {
     const event = await getEventById(requestEvent.pathParameters.eventId);
     await deleteEvent(event);

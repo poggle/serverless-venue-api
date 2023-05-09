@@ -6,7 +6,7 @@ import createEvent from '../../../services/events/create-event';
 import deserialiser from "@functions/events/createEvent/deserialiser";
 import ValidationError from "../../../errors/validation-error";
 
-const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, {}> = async (requestEvent) => {
+const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, object> = async (requestEvent) => {
   try {
     const newEvent = deserialiser(requestEvent.body);
     const event = createEvent(newEvent);

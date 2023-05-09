@@ -20,6 +20,7 @@ const serialize = (event: Event): DynamoDbSerialisedEvent => ({
 });
 
 const deserialise = (serialisedEvent: DynamoDbSerialisedEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {SK, PK, ...restOfEvent} = serialisedEvent;
     return {
         ...restOfEvent,

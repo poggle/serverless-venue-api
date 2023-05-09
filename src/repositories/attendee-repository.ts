@@ -18,6 +18,7 @@ const serialize = (attendee: Attendee): DynamoDbSerialisedAttendee => ({
 });
 
 const deserialise = (serialisedAttendee: DynamoDbSerialisedAttendee) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {SK, PK, ...restOfAttendee} = serialisedAttendee;
     return restOfAttendee;
 }
