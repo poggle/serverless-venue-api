@@ -3,10 +3,10 @@
 This API is designed to manage events and attendees for various types of events such as conferences, meetups, and concerts. The API allows you to create, update, delete, and retrieve event information, as well as manage attendees for each event.
 
 ## If I had more time I would:
-- Added an authoriser to add some access control
-- Added proper unit test coverage
-- Added serverless-aws-documentation plugin and properly documented the routes
-- Added some integration test coverage
+- Add an authoriser to add some access control
+- Add proper unit test coverage
+- Add serverless-aws-documentation plugin and properly documented the routes
+- Add some integration test coverage
 
 ## Table of Contents
 
@@ -91,3 +91,24 @@ This API is designed to manage events and attendees for various types of events 
   "eventId": "string"
 }
 ```
+
+
+## Example request
+
+```bash
+curl --location --request POST 'https://i0qfhuc8e9.execute-api.eu-west-2.amazonaws.com/dev/events' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Metallica Live",
+    "description": "Some exciting description",
+    "startTime": "2023-12-01T20:00:00Z",
+    "endTime": "2023-12-01T23:00:00Z",
+    "category": "concert",
+    "isDraft": true,
+    "isCancelled": false
+}'
+```
+
+## Pipeline screenshot
+
+![Pipeline Screenshot](./pipeline.png)
