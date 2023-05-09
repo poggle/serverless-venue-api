@@ -2,6 +2,12 @@
 
 This API is designed to manage events and attendees for various types of events such as conferences, meetups, and concerts. The API allows you to create, update, delete, and retrieve event information, as well as manage attendees for each event.
 
+## If I had more time I would:
+- Added an authoriser to add some access control
+- Added proper unit test coverage
+- Added serverless-aws-documentation plugin and properly documented the routes
+- Added some integration test coverage
+
 ## Table of Contents
 
 - [Endpoints](#endpoints)
