@@ -1,6 +1,6 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
-import {deleteEvent, getEventById} from "../../../repositories/event-respository";
+import {deleteEvent, getEventById} from "../../../repositories/event-repository";
 import NotFoundError from "../../../errors/not-found-error";
 
 const handler: ValidatedEventAPIGatewayProxyEvent<{}, {eventId: string}> = async (requestEvent) => {

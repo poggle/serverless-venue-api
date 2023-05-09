@@ -37,5 +37,6 @@ export default {
             description: "Is the event cancelled?"
         }
     },
-    required: ['id', 'name', 'description', 'startTime', 'endTime', 'category', 'isDraft', 'isCancelled']
+    required: ['id', 'name', 'description', 'startTime', 'endTime', 'category', 'isDraft', 'isCancelled'],
+    additionalProperties: false,
 } as const;

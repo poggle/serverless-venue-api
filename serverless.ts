@@ -5,6 +5,7 @@ import getEvent from '@functions/events/getEvent';
 import getEvents from '@functions/events/getEvents';
 import deleteEvent from '@functions/events/deleteEvent';
 import updateEvent from '@functions/events/updateEvent';
+import createAttendee from '@functions/attendees/createAttendee';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-venue-api',
@@ -39,7 +40,7 @@ const serverlessConfiguration: AWS = {
     ],
   },
   // import the function via paths
-  functions: { createEvent, getEvent, getEvents, deleteEvent, updateEvent },
+  functions: { createEvent, getEvent, getEvents, deleteEvent, updateEvent, createAttendee },
   package: { individually: true },
   resources: {
     Resources: {

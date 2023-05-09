@@ -2,19 +2,22 @@ import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import {formatJSONErrorResponse, formatJSONResponse} from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import schema from './schema';
-import {getEventById, saveEvent} from "../../../repositories/event-repository";
-import deserialiser from "./deserialiser";
+import {saveAttendee} from "../../../repositories/attendee-repository";
+import {getEventById} from "../../../repositories/event-repository";
 import NotFoundError from "../../../errors/not-found-error";
 
 const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, {eventId: string}> = async (requestEvent) => {
-  const event = deserialiser(requestEvent.body);
+  const newAttendee = requestEvent.body;
 
-  if (event.id !== requestEvent.pathParameters.eventId) {
+  if (newAttendee.eventId !== requestEvent.pathParameters.eventId) {
     return formatJSONErrorResponse('Event id conflicts with url', 409);
   }
 
   try {
-    await getEventById(event.id);
+    const event = await getEventById(newAttendee.eventId);
+    if (event.isDraft) {
+      return formatJSONErrorResponse(`Event not found`, 404);
+    }
   } catch (e: unknown) {
     if (e instanceof NotFoundError) {
       return formatJSONErrorResponse(`Event not found`, 404);
@@ -22,8 +25,8 @@ const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, {eventId: strin
     throw e;
   }
 
-  await saveEvent(event);
-  return formatJSONResponse(event, 200);
+  const event = await saveAttendee(newAttendee);
+  return formatJSONResponse(event, 201);
 };
 
 export const main = middyfy(handler);

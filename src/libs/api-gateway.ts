@@ -8,7 +8,6 @@ export const formatJSONErrorResponse = (errorMessage: string, statusCode?: numbe
   return formatJSONResponse({error: {errorMessage}}, statusCode || 400);
 }
 
-
 export const formatJSONResponse = (response: object, statusCode?: number) => {
   return {
     statusCode: statusCode || 200,
