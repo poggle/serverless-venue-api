@@ -2,7 +2,7 @@ import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import {formatJSONErrorResponse, formatJSONResponse} from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import schema from './schema';
-import {getEventById, saveEvent} from "../../../repositories/event-repository";
+import {getEventById, saveEvent, updateEvent} from "../../../repositories/event-repository";
 import deserialiser from "./deserialiser";
 import NotFoundError from "../../../errors/not-found-error";
 
@@ -14,16 +14,14 @@ const handler: ValidatedEventAPIGatewayProxyEvent<typeof schema, {eventId: strin
   }
 
   try {
-    await getEventById(event.id);
+    await updateEvent(event);
+    return formatJSONResponse(event, 200);
   } catch (e: unknown) {
     if (e instanceof NotFoundError) {
       return formatJSONErrorResponse(`Event not found`, 404);
     }
     throw e;
   }
-
-  await saveEvent(event);
-  return formatJSONResponse(event, 200);
 };
 
 export const main = middyfy(handler);

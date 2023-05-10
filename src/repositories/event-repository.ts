@@ -1,6 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
-import {DynamoDBClient, QueryOutput} from '@aws-sdk/client-dynamodb';
-import { PutCommand, QueryCommand, DeleteCommand} from '@aws-sdk/lib-dynamodb';
+import {v4 as uuidv4} from 'uuid';
+import {DynamoDBClient, QueryOutput, TransactWriteItemsCommand} from '@aws-sdk/client-dynamodb';
+import {PutCommand, QueryCommand, DeleteCommand} from '@aws-sdk/lib-dynamodb';
+import {marshall} from '@aws-sdk/util-dynamodb';
 
 import {DynamoDbSerialisedEvent, Event, NewEvent} from "../types/event";
 import requiredEnvVar from "../libs/required-env-var";
@@ -12,11 +13,11 @@ const buildPartitionKey = (_: Event) => `EVENT`;
 const buildSortKey = (event: Event) => `isDraft=${Number(event.isDraft)}-startTime=${event.startTime.toISOString()}-eventId=${event.id}`;
 
 const serialize = (event: Event): DynamoDbSerialisedEvent => ({
-        ...event,
-        startTime: event.startTime.toISOString(),
-        endTime: event.endTime.toISOString(),
-        PK: buildPartitionKey(event),
-        SK: buildSortKey(event),
+    ...event,
+    startTime: event.startTime.toISOString(),
+    endTime: event.endTime.toISOString(),
+    PK: buildPartitionKey(event),
+    SK: buildSortKey(event),
 });
 
 const deserialise = (serialisedEvent: DynamoDbSerialisedEvent) => {
@@ -45,6 +46,43 @@ export const saveEvent = async (newEvent: NewEvent) => {
     return event;
 }
 
+export const updateEvent = async (updatedEvent: Event) => {
+    const currentEvent = await getEventById(updatedEvent.id);
+
+    const actions = [];
+
+    // If the key has changed we must first delete the old record
+    if (
+        buildPartitionKey(currentEvent) !== buildPartitionKey(updatedEvent) ||
+        buildSortKey(currentEvent) !== buildSortKey(updatedEvent)
+    ) {
+        const deleteAction = {
+            Delete: {
+                TableName: requiredEnvVar('TABLE_NAME'),
+                Key: marshall({
+                    'PK': buildPartitionKey(currentEvent),
+                    'SK': buildSortKey(currentEvent),
+                }),
+            },
+        };
+        actions.push(deleteAction);
+    }
+
+    const putAction = {
+        Put: {
+            TableName: requiredEnvVar('TABLE_NAME'),
+            Item: marshall(serialize(updatedEvent)),
+        },
+    };
+    actions.push(putAction);
+
+    await dynamoDBClient.send(
+        new TransactWriteItemsCommand({TransactItems: actions})
+    );
+
+    return updatedEvent;
+};
+
 export const getNonDraftEvents = async (): Promise<Event[]> => {
     const result = await dynamoDBClient.send(
         new QueryCommand({
@@ -63,7 +101,7 @@ export const getNonDraftEvents = async (): Promise<Event[]> => {
 }
 
 export const getEventById = async (eventId: string) => {
-    const result = await dynamoDBClient.send(new QueryCommand( {
+    const result = await dynamoDBClient.send(new QueryCommand({
         TableName: requiredEnvVar('TABLE_NAME'),
         IndexName: 'IdIndex',
         KeyConditionExpression: 'PK = :PK and id = :id',
@@ -77,7 +115,7 @@ export const getEventById = async (eventId: string) => {
         throw new NotFoundError();
     }
 
-    return  deserialise(result.Items[0] as unknown as DynamoDbSerialisedEvent);
+    return deserialise(result.Items[0] as unknown as DynamoDbSerialisedEvent);
 }
 
 export const deleteEvent = async (event: Event) => {
