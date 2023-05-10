@@ -7,11 +7,16 @@ on:
         description: 'Deployment stage (dev or prod)'
         required: true
         default: 'dev'
+  push:
+    branches:
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.stage }}
+    environment: ${{ github.event.inputs.stage || 'dev' }}
+    env:
+      DEPLOY_STAGE: ${{ github.event.inputs.stage || 'dev' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -38,8 +43,8 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Deploy to ${{ github.event.inputs.stage }}
-        run: npx serverless deploy --stage ${{ github.event.inputs.stage }}
+      - name: Deploy to ${{ env.DEPLOY_STAGE }}
+        run: npx serverless deploy --stage ${{ env.DEPLOY_STAGE }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
