@@ -2,7 +2,7 @@ import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import {formatJSONErrorResponse, formatJSONResponse} from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import schema from './schema';
-import {getEventById, saveEvent, updateEvent} from "../../../repositories/event-repository";
+import {updateEvent} from "../../../repositories/event-repository";
 import deserialiser from "./deserialiser";
 import NotFoundError from "../../../errors/not-found-error";
 
